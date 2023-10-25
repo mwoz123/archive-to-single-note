@@ -19,17 +19,18 @@ export default class SingleFileArchiverPlugin extends Plugin {
 			id: 'archive-to-default-file',
 			name: 'Archive to default file',
 			editorCallback: (editor: Editor, view: MarkdownView) => {
-				// const file = view.file;
+				const file = view.file;
 				// const {basename, path} = file;
 
+				// const toBeArchivedContents = `# ${basename} \n${editor.getValue()}`;
 				const toBeArchivedContents = editor.getValue();
 				console.log(toBeArchivedContents);
 				// const vaultRoot = this.app.vault.getRoot()
-
-				const fsa = new FileSystemAdapter()
+				
 				// const archivePath = normalizePath(vaultRoot + this.settings.archiveFile);
 				// const archivePath2 = normalizePath(this.settings.archiveFile);
-				fsa.append(this.settings.archiveFile, toBeArchivedContents);
+				this.app.vault.adapter.append(this.settings.archiveFile, toBeArchivedContents);
+				// this.app.vault.adapter.remove(file?.path);
 
 			}
 		});
