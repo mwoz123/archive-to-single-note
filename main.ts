@@ -1,4 +1,4 @@
-import { App, Editor, FileSystemAdapter, MarkdownView, Plugin, PluginSettingTab, Setting } from 'obsidian';
+import { App, Editor, MarkdownView, Plugin, PluginSettingTab, Setting } from 'obsidian';
 
 
 interface PluginSettings {
@@ -19,18 +19,15 @@ export default class SingleFileArchiverPlugin extends Plugin {
 			id: 'archive-to-default-file',
 			name: 'Archive to default file',
 			editorCallback: (editor: Editor, view: MarkdownView) => {
-				const file = view.file;
-				// const {basename, path} = file;
+				const activeFile = this.app.workspace.getActiveFile();
+				if (!activeFile) {
+					return;
+				}
+				const {basename} = activeFile;
 
-				// const toBeArchivedContents = `# ${basename} \n${editor.getValue()}`;
-				const toBeArchivedContents = editor.getValue();
-				console.log(toBeArchivedContents);
-				// const vaultRoot = this.app.vault.getRoot()
-				
-				// const archivePath = normalizePath(vaultRoot + this.settings.archiveFile);
-				// const archivePath2 = normalizePath(this.settings.archiveFile);
+				const toBeArchivedContents = `# ${basename} \n${editor.getValue()}`;
 				this.app.vault.adapter.append(this.settings.archiveFile, toBeArchivedContents);
-				// this.app.vault.adapter.remove(file?.path);
+				this.app.vault.delete(activeFile);
 
 			}
 		});
@@ -69,7 +66,7 @@ class SingleFileArchiverPluginSettingTab extends PluginSettingTab {
 			.setName('Archive path')
 			.setDesc('with folder (if any)')
 			.addText(text => text
-				.setPlaceholder('Enter your path')
+				.setPlaceholder('archive.md')
 				.setValue(this.plugin.settings.archiveFile)
 				.onChange(async (value) => {
 					this.plugin.settings.archiveFile = value;
