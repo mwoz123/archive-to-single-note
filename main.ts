@@ -15,21 +15,15 @@ export default class ArchiveToSingleFilePlugin extends Plugin {
 	async onload() {
 		await this.loadSettings();
 
+		// const ribbonIconEl = this.addRibbonIcon('dice', 'Sample Plugin', (evt: MouseEvent) => {
+		// });
+
 		this.addCommand({
 			id: 'archive-to-default-file',
 			name: 'Archive file',
-			editorCallback: (editor: Editor, view: MarkdownView) => {
-				const activeFile = this.app.workspace.getActiveFile();
-				if (!activeFile) {
-					return;
-				}
-				const {basename} = activeFile;
-
-				const toBeArchivedContents = `# ${basename} \n${editor.getValue()}`;
-				this.app.vault.adapter.append(this.settings.archiveFile, toBeArchivedContents);
-				this.app.vault.delete(activeFile);
-
-			}
+			editorCallback: (editor: Editor, view: MarkdownView) => 
+				archiveFile(editor, this.app, this.settings)
+			
 		});
 
 		this.addSettingTab(new ArchiveToSingleFilePluginSettingTab(this.app, this));
@@ -46,6 +40,18 @@ export default class ArchiveToSingleFilePlugin extends Plugin {
 	async saveSettings() {
 		await this.saveData(this.settings);
 	}
+}
+
+function archiveFile( editor: Editor, app: App , settings: PluginSettings) {
+	const activeFile = app.workspace.getActiveFile();
+	if (!activeFile) {
+		return;
+	}
+	const {basename} = activeFile;
+
+	const toBeArchivedContents = `# ${basename} \n${editor.getValue()}`;
+	app.vault.adapter.append(settings.archiveFile, toBeArchivedContents);
+	app.vault.delete(activeFile);
 }
 
 
