@@ -9,7 +9,7 @@ const DEFAULT_SETTINGS: PluginSettings = {
 	archiveFile: 'archive.md'
 }
 
-export default class SingleFileArchiverPlugin extends Plugin {
+export default class ArchiveToSingleFilePlugin extends Plugin {
 	settings: PluginSettings;
 
 	async onload() {
@@ -32,7 +32,7 @@ export default class SingleFileArchiverPlugin extends Plugin {
 			}
 		});
 
-		this.addSettingTab(new SingleFileArchiverPluginSettingTab(this.app, this));
+		this.addSettingTab(new ArchiveToSingleFilePluginSettingTab(this.app, this));
 	}
 
 	onunload() {
@@ -49,10 +49,10 @@ export default class SingleFileArchiverPlugin extends Plugin {
 }
 
 
-class SingleFileArchiverPluginSettingTab extends PluginSettingTab {
-	plugin: SingleFileArchiverPlugin;
+class ArchiveToSingleFilePluginSettingTab extends PluginSettingTab {
+	plugin: ArchiveToSingleFilePlugin;
 
-	constructor(app: App, plugin: SingleFileArchiverPlugin) {
+	constructor(app: App, plugin: ArchiveToSingleFilePlugin) {
 		super(app, plugin);
 		this.plugin = plugin;
 	}
