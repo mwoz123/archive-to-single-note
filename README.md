@@ -8,7 +8,7 @@ After merging old filename is removed.
 
 
 **Hint**:
-1. use filename without `.md` to hide it from you obsidian vault
+1. use archive filename without `.md` to hide it from you obsidian vault
 2. as `# ` is used as old filename in archive, it's recommended to avoid using it in your notes
 
 
