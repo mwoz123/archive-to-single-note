@@ -17,7 +17,7 @@ export default class SingleFileArchiverPlugin extends Plugin {
 
 		this.addCommand({
 			id: 'archive-to-default-file',
-			name: 'Archive to default file',
+			name: 'Archive file',
 			editorCallback: (editor: Editor, view: MarkdownView) => {
 				const activeFile = this.app.workspace.getActiveFile();
 				if (!activeFile) {
@@ -63,8 +63,8 @@ class SingleFileArchiverPluginSettingTab extends PluginSettingTab {
 		containerEl.empty();
 
 		new Setting(containerEl)
-			.setName('Archive path')
-			.setDesc('with folder (if any)')
+			.setName('Archive file path')
+			.setDesc('with folder (if required)')
 			.addText(text => text
 				.setPlaceholder('archive.md')
 				.setValue(this.plugin.settings.archiveFile)
