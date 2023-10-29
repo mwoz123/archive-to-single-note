@@ -1,4 +1,4 @@
-# Archive/trash to single note. [Obsidian](https://obsidian.md) plugin
+# Archive/trash to single note for [Obsidian](https://obsidian.md)
 
 Allows to create single file archive/trash and merge(archive) old notes with it.
 
