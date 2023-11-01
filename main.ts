@@ -1,4 +1,4 @@
-import { App, Editor, MarkdownView, Plugin, PluginSettingTab, Setting } from 'obsidian';
+import { App, Editor, MarkdownView, Plugin, PluginSettingTab, Setting, TFile } from 'obsidian';
 
 
 interface PluginSettings {
@@ -42,7 +42,7 @@ export default class ArchiveToSingleFilePlugin extends Plugin {
 	}
 }
 
-function archiveFile( editor: Editor, app: App , settings: PluginSettings) {
+async function archiveFile( editor: Editor, app: App , settings: PluginSettings) {
 	const activeFile = app.workspace.getActiveFile();
 	if (!activeFile) {
 		return;
@@ -50,7 +50,12 @@ function archiveFile( editor: Editor, app: App , settings: PluginSettings) {
 	const {basename} = activeFile;
 
 	const toBeArchivedContents = `# ${basename} \n${editor.getValue()}`;
-	app.vault.adapter.append(settings.archiveFile, toBeArchivedContents);
+	if (! await app.vault.adapter.exists(settings.archiveFile)) {
+		app.vault.create(settings.archiveFile, toBeArchivedContents);
+	}else {
+		const archiveTFile = app.vault.getAbstractFileByPath(settings.archiveFile);
+		app.vault.append(<TFile>archiveTFile, toBeArchivedContents)
+	}
 	app.vault.delete(activeFile);
 }
 
