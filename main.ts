@@ -21,6 +21,7 @@ export default class ArchiveToSingleFilePlugin extends Plugin {
 		addArchivesToCommandPallete(this);
 
 		this.addSettingTab(new ArchiveToSingleFilePluginSettingTab(this.app, this));
+		return this;
 	}
 
 	onunload() {
@@ -95,11 +96,14 @@ class ArchiveToSingleFilePluginSettingTab extends PluginSettingTab {
 			})
 		});
 
-		containerEl.createEl("h6", { text: "Restart application to remove deleted archives from Command Pallete. You can use button bellow for added archives."});
+		containerEl.createEl("h6", { text: "Restart application to update archives in Command Pallete or you can use button bellow"});
 		new Setting(containerEl).addButton((cb: ButtonComponent) => {
-			cb.setButtonText("Add newly added archives to Command Pallete");
+			cb.setButtonText("Refresh archives in command pallete");
 			cb.onClick(() => {
-				addArchivesToCommandPallete(this.plugin);
+				// addArchivesToCommandPallete(this.plugin);
+				this.plugin.unload();
+				const newPlugin = this.plugin.load();
+				this.display();
 			})
 		});
 	}
