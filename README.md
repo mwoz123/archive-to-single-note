@@ -14,4 +14,4 @@ After merging old filename is removed.
 
 
 ### version 2.0.0
-- allows to create additional/multiple (`hobby-archive, `work-archive` etc) archive files
+- allows to create additional/multiple (`hobby-archive`, `work-archive` etc) archive files
