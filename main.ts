@@ -8,7 +8,7 @@ interface PluginSettings {
 
 const DEFAULT_SETTINGS: PluginSettings = {
 	archiveFile: 'archive.md',
-	archiveHobbyFile: 'archive-hobby.md'
+	archiveHobbyFile: 'hobby/archive.md'
 }
 
 export default class ArchiveToSingleFilePlugin extends Plugin {
