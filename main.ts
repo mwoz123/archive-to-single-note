@@ -21,7 +21,6 @@ export default class ArchiveToSingleFilePlugin extends Plugin {
 		addArchivesToCommandPallete(this);
 
 		this.addSettingTab(new ArchiveToSingleFilePluginSettingTab(this.app, this));
-		return this;
 	}
 
 	onunload() {
@@ -66,6 +65,7 @@ class ArchiveToSingleFilePluginSettingTab extends PluginSettingTab {
 		const { containerEl } = this;
 
 		containerEl.empty();
+		containerEl.createEl("h1", { text: "Archive To Single File" });
 
 		this.plugin.settings.archives.map((archiveName: string, index, array) => {
 			new Setting(containerEl)
@@ -78,8 +78,9 @@ class ArchiveToSingleFilePluginSettingTab extends PluginSettingTab {
 						await this.plugin.saveSettings();
 					})).addButton((cb: ButtonComponent) => {
 						cb.setButtonText("Remove");
-						cb.onClick(() => {
+						cb.onClick(async () => {
 							array.splice(index, 1)
+							await this.plugin.saveSettings();
 							containerEl.empty();
 							this.display();
 						})
@@ -89,23 +90,25 @@ class ArchiveToSingleFilePluginSettingTab extends PluginSettingTab {
 
 		new Setting(containerEl).addButton((cb: ButtonComponent) => {
 			cb.setButtonText("Add addional archives");
-			cb.onClick(() => {
-				this.plugin.settings.archives.push("archive-" + this.plugin.settings.archives.length + ".md")
+			cb.onClick(async () => {
+				this.plugin.settings.archives.push("archive-" + (this.plugin.settings.archives.length + 1) + ".md")
+				await this.plugin.saveSettings();
 				containerEl.empty();
 				this.display();
 			})
 		});
 
-		containerEl.createEl("h6", { text: "Restart application to update archives in Command Pallete or you can use button bellow"});
+		containerEl.createEl("label", { text: "Restart plugin to make changes visible:" });
 		new Setting(containerEl).addButton((cb: ButtonComponent) => {
-			cb.setButtonText("Refresh archives in command pallete");
-			cb.onClick(() => {
-				// addArchivesToCommandPallete(this.plugin);
+			cb.setButtonText("Restart plugin");
+			cb.onClick(async () => {
 				this.plugin.unload();
-				const newPlugin = this.plugin.load();
-				this.display();
+				const newPlugin = new ArchiveToSingleFilePlugin(this.app, this.plugin.manifest)
+				await newPlugin.load();
+				this.containerEl.createEl("h6", { text: "Changes applied." });
 			})
 		});
+
 	}
 
 }
