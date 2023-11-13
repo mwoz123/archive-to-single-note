@@ -3,10 +3,12 @@ import { App, Editor, MarkdownView, Plugin, PluginSettingTab, Setting, TFile } f
 
 interface PluginSettings {
 	archiveFile: string;
+	archiveHobbyFile: string;
 }
 
 const DEFAULT_SETTINGS: PluginSettings = {
-	archiveFile: 'archive.md'
+	archiveFile: 'archive.md',
+	archiveHobbyFile: 'archive-hobby.md'
 }
 
 export default class ArchiveToSingleFilePlugin extends Plugin {
@@ -30,7 +32,6 @@ export default class ArchiveToSingleFilePlugin extends Plugin {
 	}
 
 	onunload() {
-
 	}
 
 	async loadSettings() {
@@ -75,12 +76,22 @@ class ArchiveToSingleFilePluginSettingTab extends PluginSettingTab {
 
 		new Setting(containerEl)
 			.setName('Archive file path')
-			.setDesc('with folder (if required)')
+			.setDesc('with folder prefix (if required)')
 			.addText(text => text
 				.setPlaceholder('archive.md')
 				.setValue(this.plugin.settings.archiveFile)
 				.onChange(async (value) => {
 					this.plugin.settings.archiveFile = value;
+					await this.plugin.saveSettings();
+				}));
+		new Setting(containerEl)
+			.setName('Additional (e.g. hobby, work) archive')
+			.setDesc('with folder prefix (if required)')
+			.addText(text => text
+				.setPlaceholder('archive-hobby.md')
+				.setValue(this.plugin.settings.archiveHobbyFile)
+				.onChange(async (value) => {
+					this.plugin.settings.archiveHobbyFile = value;
 					await this.plugin.saveSettings();
 				}));
 	}
