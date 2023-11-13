@@ -2,13 +2,11 @@ import { App, ButtonComponent, Editor, MarkdownView, Plugin, PluginSettingTab, S
 
 
 interface PluginSettings {
-	archiveFile: string;
-	additionalArchives: [string];
+	archives: string[];
 }
 
 const DEFAULT_SETTINGS: PluginSettings = {
-	archiveFile: 'archive.md',
-	additionalArchives: ['hobby/archive.md']
+	archives: ['archive-main.md', 'hobby/archive.md']
 }
 
 export default class ArchiveToSingleFilePlugin extends Plugin {
@@ -20,19 +18,7 @@ export default class ArchiveToSingleFilePlugin extends Plugin {
 		// const ribbonIconEl = this.addRibbonIcon('dice', 'Sample Plugin', (evt: MouseEvent) => {
 		// });
 
-		this.addCommand({
-			id: 'archive-to-default-file',
-			name: 'Archive file',
-			editorCallback: (editor: Editor, view: MarkdownView) =>
-				archiveFile(editor, this.app, this.settings.archiveFile)
-		});
-
-		// this.addCommand({
-		// 	id: 'archive-to-additional-file',
-		// 	name: 'Archive to additional (e.g. hobby) file',
-		// 	editorCallback: (editor: Editor, view: MarkdownView) =>
-		// 		// archiveFile(editor, this.app, this.settings.archiveHobbyFile)
-		// });
+		addArchivesToCommandPallete(this);
 
 		this.addSettingTab(new ArchiveToSingleFilePluginSettingTab(this.app, this));
 	}
@@ -56,7 +42,7 @@ async function archiveFile(editor: Editor, app: App, filePath: string) {
 	}
 	const { basename } = activeFile;
 
-	const toBeArchivedContents = `# ${basename} \n${editor.getValue()}`;
+	const toBeArchivedContents = `\n# ${basename} \n${editor.getValue()}`;
 	if (! await app.vault.adapter.exists(filePath)) {
 		app.vault.create(filePath, toBeArchivedContents);
 	} else {
@@ -80,46 +66,50 @@ class ArchiveToSingleFilePluginSettingTab extends PluginSettingTab {
 
 		containerEl.empty();
 
-		new Setting(containerEl)
-			.setName('Archive file path')
-			.setDesc('with folder prefix (if required)')
-			.addText(text => text
-				.setPlaceholder('archive.md')
-				.setValue(this.plugin.settings.archiveFile)
-				.onChange(async (value) => {
-					this.plugin.settings.archiveFile = value;
-					await this.plugin.saveSettings();
-				}));
+		this.plugin.settings.archives.map((archiveName: string, index, array) => {
+			new Setting(containerEl)
+				.setName('Archive ' + (index + 1) + " path")
+				.setDesc('with folder prefix (if needed)')
+				.addText(text => text
+					.setValue(archiveName)
+					.onChange(async (value) => {
+						this.plugin.settings.archives[index] = value;
+						await this.plugin.saveSettings();
+					})).addButton((cb: ButtonComponent) => {
+						cb.setButtonText("Remove");
+						cb.onClick(() => {
+							array.splice(index, 1)
+							containerEl.empty();
+							this.display();
+						})
+					}
+					);
+		})
+
 		new Setting(containerEl).addButton((cb: ButtonComponent) => {
-			cb.setButtonText("Add");
+			cb.setButtonText("Add addional archives");
 			cb.onClick(() => {
-				this.plugin.settings.additionalArchives.push("archive-" + this.plugin.settings.additionalArchives.length + ".md")
+				this.plugin.settings.archives.push("archive-" + this.plugin.settings.archives.length + ".md")
 				containerEl.empty();
 				this.display();
 			})
 		});
 
-		this.plugin.settings.additionalArchives.map((archiveName, index, array) => {
-			console.log(array)
-			new Setting(containerEl)
-				.setName('Archive ' + archiveName)
-				.setDesc('with folder prefix (if required)')
-				.addText(text => text
-					.setValue(archiveName)
-					.onChange(async (value) => {
-						this.plugin.settings.additionalArchives[index] = value;
-						await this.plugin.saveSettings();
-					}))
-			new Setting(containerEl).addButton((cb: ButtonComponent) => {
-				cb.setButtonText("Remove");
-				cb.onClick(() => {
-					array.splice(index, 1)
-					containerEl.empty();
-					this.display();
-				})
-			}
-			);
-
-		})
+		containerEl.createEl("h6", { text: "Restart application to remove deleted archives from Command Pallete. You can use button bellow for added archives."});
+		new Setting(containerEl).addButton((cb: ButtonComponent) => {
+			cb.setButtonText("Add newly added archives to Command Pallete");
+			cb.onClick(() => {
+				addArchivesToCommandPallete(this.plugin);
+			})
+		});
 	}
+
 }
+function addArchivesToCommandPallete(plugin: ArchiveToSingleFilePlugin) {
+	plugin.settings.archives.forEach(archiveName => plugin.addCommand({
+		id: archiveName.replace(" ", '-'),
+		name: 'Archive to ' + archiveName,
+		editorCallback: (editor: Editor, view: MarkdownView) => archiveFile(editor, plugin.app, archiveName)
+	}));
+}
+
