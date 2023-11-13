@@ -6,7 +6,7 @@ interface PluginSettings {
 }
 
 const DEFAULT_SETTINGS: PluginSettings = {
-	archives: ['archive-main.md', 'hobby/archive.md']
+	archives: ['archive-main.md']
 }
 
 export default class ArchiveToSingleFilePlugin extends Plugin {
@@ -69,7 +69,7 @@ class ArchiveToSingleFilePluginSettingTab extends PluginSettingTab {
 
 		this.plugin.settings.archives.map((archiveName: string, index, array) => {
 			new Setting(containerEl)
-				.setName('Archive ' + (index + 1) + " path")
+				.setName(array.length ===1 ? 'Main archive ': 'Archive ' +(index + 1) + " path")
 				.setDesc('with folder prefix (if needed)')
 				.addText(text => text
 					.setValue(archiveName)
