@@ -95,7 +95,7 @@ class ArchiveToSingleFilePluginSettingTab extends PluginSettingTab {
 			.setName('Additional (e.g. hobby, work) archive')
 			.setDesc('with folder prefix (if required)')
 			.addText(text => text
-				.setPlaceholder('archive-hobby.md')
+				.setPlaceholder('hobby/archive.md')
 				.setValue(this.plugin.settings.archiveHobbyFile)
 				.onChange(async (value) => {
 					this.plugin.settings.archiveHobbyFile = value;
