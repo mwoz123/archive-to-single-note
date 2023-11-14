@@ -6,7 +6,7 @@ interface PluginSettings {
 }
 
 const DEFAULT_SETTINGS: PluginSettings = {
-	archives: ['archive-main.md']
+	archives: ['archive.md']
 }
 
 export default class ArchiveToSingleFilePlugin extends Plugin {
@@ -61,31 +61,42 @@ class ArchiveToSingleFilePluginSettingTab extends PluginSettingTab {
 		this.plugin = plugin;
 	}
 
+	hide() {
+		this.plugin.saveSettings().then(() => {
+			this.plugin.unload();
+			const newPlugin = new ArchiveToSingleFilePlugin(this.app, this.plugin.manifest)
+			newPlugin.load();
+		});
+	}
+
 	display(): void {
 		const { containerEl } = this;
 
 		containerEl.empty();
-		containerEl.createEl("h1", { text: "Archive To Single File" });
+		containerEl.createEl("h2", { text: "Archive To Single File Settings" });
 
 		this.plugin.settings.archives.map((archiveName: string, index, array) => {
-			new Setting(containerEl)
-				.setName(array.length ===1 ? 'Main archive ': 'Archive ' +(index + 1) + " path")
+			const pathEl = new Setting(containerEl)
+				.setName(index === 0 ? 'Main archive path' : 'Archive ' + (index + 1) + " path")
 				.setDesc('with folder prefix (if needed)')
 				.addText(text => text
 					.setValue(archiveName)
 					.onChange(async (value) => {
 						this.plugin.settings.archives[index] = value;
 						await this.plugin.saveSettings();
-					})).addButton((cb: ButtonComponent) => {
-						cb.setButtonText("Remove");
-						cb.onClick(async () => {
-							array.splice(index, 1)
-							await this.plugin.saveSettings();
-							containerEl.empty();
-							this.display();
-						})
-					}
-					);
+					}));
+
+			if (index !== 0) {
+				pathEl.addButton((cb: ButtonComponent) => {
+					cb.setButtonText("Remove");
+					cb.onClick(async () => {
+						array.splice(index, 1)
+						await this.plugin.saveSettings();
+						containerEl.empty();
+						this.display();
+					})
+				});
+			}
 		})
 
 		new Setting(containerEl).addButton((cb: ButtonComponent) => {
@@ -97,18 +108,6 @@ class ArchiveToSingleFilePluginSettingTab extends PluginSettingTab {
 				this.display();
 			})
 		});
-
-		containerEl.createEl("label", { text: "Restart plugin to make changes visible:" });
-		new Setting(containerEl).addButton((cb: ButtonComponent) => {
-			cb.setButtonText("Restart plugin");
-			cb.onClick(async () => {
-				this.plugin.unload();
-				const newPlugin = new ArchiveToSingleFilePlugin(this.app, this.plugin.manifest)
-				await newPlugin.load();
-				this.containerEl.createEl("h6", { text: "Changes applied." });
-			})
-		});
-
 	}
 
 }
